@@ -7,7 +7,7 @@
 // 확인: 출력이 주석의 예상과 전부 같습니다.
 // 커밋 메시지: p6: check (P7 에서 늘린 것은 p7: reasons 에 같이)
 
-import { toDays, isGoodDay, summarize } from "./logic.js";
+import { toDays, isGoodDay, summarize, reasons } from "./logic.js";
 
 
 const daily = {
@@ -42,4 +42,22 @@ console.log("전체 요약:", summarize(days, limits));
 
 
 console.log("빈 배열:", summarize([], limits));
+
+
+const testLimits = { rain: 30, wind: 10 };
+
+
+console.log(reasons({ rain: 20, wind: 6.7 }, testLimits)); // 예상: []
+
+
+console.log(reasons({ rain: 30, wind: 10 }, testLimits)); // 예상: []
+
+
+console.log(reasons({ rain: 31, wind: 5 }, testLimits)); // 예상: ["rain"]
+
+
+console.log(reasons({ rain: 0, wind: 11.8 }, testLimits)); // 예상: ["wind"]
+
+
+console.log(reasons({ rain: 57, wind: 11.2 }, testLimits)); // 예상: ["rain", "wind"]
 

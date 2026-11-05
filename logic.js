@@ -26,11 +26,7 @@ export function toDays(daily) {
 }
 
 export function isGoodDay(day, limits) {
-    if (day.rain <= limits.rain && day.wind <= limits.wind) {
-        return true;
-    } else {
-        return false;
-    }
+    return reasons(day, limits).length === 0;
 }
 
 export function summarize(days, limits) {
@@ -43,5 +39,19 @@ export function summarize(days, limits) {
     }
 
     return `good for a run on ${goodCount} of ${days.length} days`;
+}
+
+export function reasons(day, limits) {
+    const result = [];
+
+    if (day.rain > limits.rain) {
+        result.push("rain");
+    }
+
+    if (day.wind > limits.wind) {
+        result.push("wind");
+    }
+
+    return result;
 }
 
