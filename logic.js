@@ -24,3 +24,24 @@ export function toDays(daily) {
 
     return days;
 }
+
+export function isGoodDay(day, limits) {
+    if (day.rain <= limits.rain && day.wind <= limits.wind) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function summarize(days, limits) {
+    let goodCount = 0;
+
+    for (let i = 0; i < days.length; i++) {
+        if (isGoodDay(days[i], limits)) {
+            goodCount++;
+        }
+    }
+
+    return `good for a run on ${goodCount} of ${days.length} days`;
+}
+

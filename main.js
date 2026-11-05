@@ -13,7 +13,7 @@
 // 주어짐: 도시 세 곳의 위도·경도. 키는 index.html <select> 의 option value 와 같습니다.
 
 import { getForecast } from "./api.js";
-import { toDays } from "./logic.js";
+import { toDays, isGoodDay, summarize } from "./logic.js";
 
 
 const CITIES = {
@@ -22,9 +22,21 @@ const CITIES = {
   gangneung: { name: "Gangneung", lat: 37.7519, lon: 128.8761 },
 };
 
+const form = document.querySelector("#run-form");
+const citySelect = document.querySelector("#city");
+const rainInput = document.querySelector("#rain-limit");
+const windInput = document.querySelector("#wind-limit");
+const statusEl = document.querySelector("#status");
+const summaryEl = document.querySelector("#summary");
+const rowsEl = document.querySelector("#rows");
+
 const state = {
     city: null,
-    days: []
+    days: [],
+    limits: {
+        rain: Number(rainInput.value),
+        wind: Number(windInput.value)
+    }
 };
 
 function dayRow(day) {
@@ -45,27 +57,36 @@ function dayRow(day) {
     tr.appendChild(windTd);
     tr.appendChild(rainTd);
 
+    if (isGoodDay(day, state.limits)) {
+        tr.classList.add("good");
+    }
+
     return tr;
 }
 
 function render() {
     const rows = state.days.map(dayRow);
     rowsEl.replaceChildren(...rows);
+
+    if (state.city) {
+        summaryEl.textContent =
+            `${state.city.name}: ${summarize(state.days, state.limits)}.`;
+    } else {
+        summaryEl.textContent = "";
+    }
 }
 
 // P1 부터 여기 아래에 씁니다.
-const form = document.querySelector("#run-form");
-const citySelect = document.querySelector("#city");
-const rainInput = document.querySelector("#rain-limit");
-const windInput = document.querySelector("#wind-limit");
-const statusEl = document.querySelector("#status");
-const summaryEl = document.querySelector("#summary");
-const rowsEl = document.querySelector("#rows");
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const city = CITIES[citySelect.value];
+
+    state.limits = {
+        rain: Number(rainInput.value),
+        wind: Number(windInput.value)
+    };
 
     statusEl.textContent = "Loading...";
     statusEl.classList.remove("error");
@@ -75,13 +96,11 @@ form.addEventListener("submit", async (event) => {
 
         state.city = city;
         state.days = toDays(daily);
-
         statusEl.textContent = "";
 
     } catch (err) {
         statusEl.textContent =
             `Could not load the forecast (${err.message}).`;
-
         statusEl.classList.add("error");
     }
 
