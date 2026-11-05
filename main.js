@@ -13,6 +13,7 @@
 // 주어짐: 도시 세 곳의 위도·경도. 키는 index.html <select> 의 option value 와 같습니다.
 
 import { getForecast } from "./api.js";
+import { toDays } from "./logic.js";
 
 
 const CITIES = {
@@ -20,6 +21,37 @@ const CITIES = {
   daejeon: { name: "Daejeon", lat: 36.3504, lon: 127.3845 },
   gangneung: { name: "Gangneung", lat: 37.7519, lon: 128.8761 },
 };
+
+const state = {
+    city: null,
+    days: []
+};
+
+function dayRow(day) {
+    const tr = document.createElement("tr");
+
+    const dateTd = document.createElement("td");
+    const maxTd = document.createElement("td");
+    const windTd = document.createElement("td");
+    const rainTd = document.createElement("td");
+
+    dateTd.textContent = day.date.slice(5);
+    maxTd.textContent = `${day.max}°`;
+    windTd.textContent = `${day.wind} km/h`;
+    rainTd.textContent = `${day.rain}%`;
+
+    tr.appendChild(dateTd);
+    tr.appendChild(maxTd);
+    tr.appendChild(windTd);
+    tr.appendChild(rainTd);
+
+    return tr;
+}
+
+function render() {
+    const rows = state.days.map(dayRow);
+    rowsEl.replaceChildren(...rows);
+}
 
 // P1 부터 여기 아래에 씁니다.
 const form = document.querySelector("#run-form");
@@ -41,7 +73,8 @@ form.addEventListener("submit", async (event) => {
     try {
         const daily = await getForecast(city);
 
-        console.log(daily);
+        state.city = city;
+        state.days = toDays(daily);
 
         statusEl.textContent = "";
 
@@ -51,4 +84,6 @@ form.addEventListener("submit", async (event) => {
 
         statusEl.classList.add("error");
     }
+
+    render();
 });
